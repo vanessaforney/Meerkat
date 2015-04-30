@@ -14,7 +14,7 @@ void Meerkat::assist_meerkat() {
 
 void sigint_handler(int sig) {
   if (SIGINT == sig) {
-    cerr << "Catching ctrl-c." << endl;
+    cerr << "Meerkat program terminating." << endl;
   }
 }
 
