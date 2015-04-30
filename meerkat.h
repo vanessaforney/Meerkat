@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <cstdlib>
 
 #include <sys/socket.h>
 #include <string.h>
@@ -10,6 +11,8 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
+#include <signal.h>
+#include <stdio.h>
 
 #define NUM_ARGS 4
 

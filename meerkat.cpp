@@ -7,15 +7,29 @@ Meerkat::Meerkat(char *my_ip, char *buddy_ip, char *callback) {
 }
 
 void Meerkat::assist_meerkat() {
-  char *path = (char *) calloc(3, 1);
-  path[0] = '.';
-  path[1] = '/';
+  string s(this->callback);
+  s = "./" + s;
+  execl(s.c_str(), s.c_str(), NULL);
+}
 
-  execl(strcat(path, this->callback), NULL);
+void sigint_handler(int sig) {
+  if (SIGINT == sig) {
+    cerr << "Catching ctrl-c." << endl;
+  }
 }
 
 int main(int argc, char **argv) {
   char *my_ip, *buddy_ip, *callback;
+  struct sigaction sa;
+  
+  sa.sa_handler = sigint_handler;
+  sigfillset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  if (-1 == sigaction(SIGINT, &sa, NULL))
+  {
+    cerr << "Couldn't set signal handler." << endl;
+    return 2;
+  }
 
   if (argc == NUM_ARGS) {
     my_ip = argv[1];
@@ -23,10 +37,12 @@ int main(int argc, char **argv) {
     callback = argv[3];
 
     Meerkat *meerkat = new Meerkat(my_ip, buddy_ip, callback);
-
+    
     // loop to monitor network
         // hit
             // call
+    pause();
+    
     meerkat->assist_meerkat();
   }
 
