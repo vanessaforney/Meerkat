@@ -1,26 +1,37 @@
 #ifndef MEERKAT_H_
 #define MEERKAT_H_
 
-enum Priority { HIGH, MEDIUM, LOW }
+#include <vector>
+#include <iostream>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+
+using namespace std;
+
+class Meerkat;
 
 class Meerkat {
 public:
-  /* The buddy meerkat to send packets to. */
-  Meerkat buddy;
+  Meerkat(struct sockaddr_in ip_address, Meerkat buddy, string callback);
 
-  /* Add information to backup to the meerkat colony with a specified
-  priority. */
-  void add_to_colony(int *information, Priority priority);
+private:
+  /* The IP address of the server running the current meerket. */
+  struct sockaddr_in ip_address;
 
-  /* Designate the buddy meerkat to send packets to when loss is experienced. */
-  void designate_buddy(Meerkat meerkat);
+  /* The buddy meerkat to send packets to when loss is experienced. */
+  Meerkat *buddy;
 
-  /* Callback function for when the system loses power. Begins the process of
-  sending packets to the buddy meerkat. Backs up the data in the order specified
-  by their priorities. */
-  void initiate_backup();
+  /* The list of meerkats that will send a panic message to the current meerkat
+  when they experience loss. */
+  vector<Meerkat> clan;
 
-  /* Receives a packet from a buddy meerkat that has initiated loss mode. */
+  /* The name of the program to run. */
+  string callback;
+
+  /* Receives a message from a meerkat in the clan that has initiated loss mode.
+  Calls the user defined callpack function. */
   void assist_meerkat();
 };
 
