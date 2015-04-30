@@ -1,4 +1,4 @@
-CPPFLAGS=-O2 -g -Wall -Werror
+CPPFLAGS=-O2 -g
 SRCFILES=meerkat.cpp
 
 all: meerkat
