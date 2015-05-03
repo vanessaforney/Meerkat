@@ -6,6 +6,7 @@
 #include <cstdlib>
 
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -16,8 +17,10 @@
 
 #include "driver.h"
 
-#define NUM_ARGS 4
+#define NUM_ARGS 5
 #define ERROR -1
+#define LOWEST_PORT 10000
+#define HIGHEST_PORT 50000
 
 using namespace std;
 
