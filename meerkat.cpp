@@ -1,10 +1,13 @@
 #include "meerkat.h"
 
-Meerkat::Meerkat(char *my_ip, char *buddy_ip, char *buddy_port, char *callback) {
-  this->my_ip = my_ip;
-  this->buddy_ip = buddy_ip;
-  this->buddy_port = buddy_port;
+Meerkat::Meerkat(char *my_port, char *buddy_port, char *buddy_ip, char *callback) {
+  this->my_port = strtol(my_port, NULL, 10);
+  this->buddy_port = strtol(buddy_port, NULL, 10);
   this->callback = callback;
+
+  (this->buddy_ip).sin_family = AF_INET;
+  (this->buddy_ip).sin_port = htons(this->buddy_port);
+  inet_pton(AF_INET, buddy_port, &((this->buddy_ip).sin_addr)); 
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {

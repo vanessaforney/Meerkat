@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <stdio.h>
+#include <unordered_map>
 
 #include "driver.h"
 
@@ -20,8 +21,6 @@
 #define ERROR -1
 
 using namespace std;
-
-//typedef enum State STATE;
 
 enum STATE {
   WAIT_ON_BUDDY, WAIT_ON_DATA
@@ -31,7 +30,7 @@ class Meerkat;
 
 class Meerkat {
 public:
-  Meerkat(char *my_ip, char *buddy_ip, char *buddy_port, char *callback);
+  Meerkat(char *my_port, char *buddy_port, char *buddy_ip, char *callback);
 
   // Set the socket descriptor of the current meerkat.
   void set_socket_descriptor(int32_t socket_descriptor);
@@ -41,14 +40,14 @@ public:
   void process();
 
 private:
-  // The IP address of the server running the current meerket.
-  char *my_ip;
-
-  // The IP address of the buddy meerkat.
-  char *buddy_ip;
+  // The port number of the server running the current meerket.
+  uint16_t my_port;
 
   // The port number of the buddy meerket.
-  char *buddy_port;
+  uint16_t buddy_port;
+
+  // The IP address of the buddy meerkat.
+  struct sockaddr_in buddy_ip;
 
   // The name of the program to run.
   char *callback;
@@ -57,7 +56,7 @@ private:
   // when they experience loss.
   // TODO: decide how to store these. We do not have the meerkat here.
   // Idea: class for IP linking to the port number? Call it Connection?
-  vector<Meerkat> clan;
+  unordered_map<string, int> clan; // pair of IP & port number or Connection clss
 
   // The socket descriptor for the current meerkat.
   // TODO: decide if this is needed.

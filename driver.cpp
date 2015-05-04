@@ -31,8 +31,13 @@ int32_t udp_configure() {
   return socket_descriptor;
 }
 
-int32_t send_packet() {
-  return 0;
+void send_packet(int socket_descriptor, struct sockaddr_in *addr, uint16_t port, uint8_t status) {
+  uint8_t message[MESSAGE_SIZE];
+  int32_t send_len = 0;
+
+  memcpy(message, &status, STATUS_SIZE);
+
+  sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(addr));
 }
 
 int32_t recv_packet() {
