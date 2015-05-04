@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include <stdio.h>
-#include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
@@ -13,6 +13,7 @@
 
 #define MESSAGE_SIZE 1
 #define STATUS_SIZE 1
+#define NO_MESSAGES -1
 
 using namespace std;
 
@@ -26,6 +27,6 @@ void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t s
 
 int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status);
 
-uint8_t recv_packet(int socket_descriptor, struct sockaddr_in *addr);
+uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result);
 
 #endif

@@ -55,11 +55,12 @@ void Meerkat::add_to_clan(sockaddr_in *addr) {
 
 STATE Meerkat::wait_on_buddy() {
   sockaddr_in from;
-  uint8_t status = recv_packet(this->socket_descriptor, &from); // Pass timeout.
+  int result;
+  uint8_t status = recv_packet(this->socket_descriptor, &from, MSG_DONTWAIT, &result);
 
-  // if (TIMEOUT) {
+  if (result == NO_MESSAGES) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY);
-  // } else {
+  } else {
     if (status == BUDDY) {
       send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
       this->add_to_clan(&from);
@@ -72,14 +73,15 @@ STATE Meerkat::wait_on_buddy() {
         cerr << "Received loss packet from meerkat not in clan" << endl;
       }
     }
-  // }
+  }
 
   return WAIT_ON_BUDDY;
 }
 
 STATE Meerkat::wait_on_data() {
   sockaddr_in from;
-  uint8_t status = recv_packet(this->socket_descriptor, &from); // Wait on buddy request or loss (no timeout).
+  int result;
+  uint8_t status = recv_packet(this->socket_descriptor, &from, 0, &result);
 
   if (status == BUDDY) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);

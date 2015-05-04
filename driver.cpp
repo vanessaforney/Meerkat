@@ -3,7 +3,7 @@
 int32_t udp_configure(uint16_t port) {
   int socket_descriptor = 0; // Socket descriptor.
   struct sockaddr_in local; // Socket address for us.
-  uint32_t len = sizeof(local); // Length of local address.
+  uint32_t len = sizeof local; // Length of local address.
 
   // Create the socket.
   if ((socket_descriptor = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -17,7 +17,7 @@ int32_t udp_configure(uint16_t port) {
   local.sin_port = htons(port);
 
   // Bind the IP address to a port.
-  if (bind(socket_descriptor, (struct sockaddr *) &local, sizeof(local)) < 0) {
+  if (bind(socket_descriptor, (struct sockaddr *) &local, sizeof local) < 0) {
     printf("Error on bind.\n");
     exit(-1);
   }
@@ -34,14 +34,12 @@ void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t s
 int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status) {
   uint8_t message[MESSAGE_SIZE];
   memcpy(message, &status, STATUS_SIZE);
-  return sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(addr));
+  return sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof addr);
 }
 
-// TODO: Add parameter to set timeout.
-uint8_t recv_packet(int socket_descriptor, sockaddr_in *from) {
+uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result) {
   uint8_t message[MESSAGE_SIZE];
-  socklen_t len = sizeof(from);
-  // TODO: Error check.
-  recvfrom(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) from, &len);
+  socklen_t len = sizeof from;
+  *result = recvfrom(socket_descriptor, message, MESSAGE_SIZE, flags, (struct sockaddr *) from, &len);
   return *message;
 }
