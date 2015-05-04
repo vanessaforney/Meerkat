@@ -1,7 +1,6 @@
 #include "driver.h"
 
-int32_t udp_configure() {
-  char ip[INET_ADDRSTRLEN];
+int32_t udp_configure(uint16_t port) {
   int socket_descriptor = 0; // Socket descriptor.
   struct sockaddr_in local; // Socket address for us.
   uint32_t len = sizeof(local); // Length of local address.
@@ -15,7 +14,7 @@ int32_t udp_configure() {
   // Set up the socket.
   local.sin_family = AF_INET;
   local.sin_addr.s_addr = INADDR_ANY;
-  local.sin_port = htons(0);
+  local.sin_port = htons(port);
 
   // Bind the IP address to a port.
   if (bind(socket_descriptor, (struct sockaddr *) &local, sizeof(local)) < 0) {
@@ -23,30 +22,26 @@ int32_t udp_configure() {
     exit(-1);
   }
 
-  // Get the assigned port number.
-  getsockname(socket_descriptor, (struct sockaddr *) &local, &len);
-  inet_ntop(AF_INET, &(local.sin_addr), ip, INET_ADDRSTRLEN);
-  printf("Using port number %d on IP address %s\n", ntohs(local.sin_port), ip);
-
   return socket_descriptor;
 }
 
-void send_packet(int socket_descriptor, struct sockaddr_in *addr, uint16_t port, uint8_t status) {
-  uint8_t message[MESSAGE_SIZE];
-  int32_t send_len = 0;
-
-  memcpy(message, &status, STATUS_SIZE);
-
-  sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(addr));
-}
-
-int32_t recv_packet() {
-  return 0;
-}
-
-/*void send_packet(char *msg, int socket_descriptor, char *destination_ip, unsigned short destination_port) {
-  if (sendto(socket_descriptor, msg, strlen(msg), 0, (struct sockaddr *) &destination), sizeof(destination)) < 0) {
-    printf("Could not send data to the server.\n");
-    exit(1);
+void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t status) {
+  if ((send_packet(socket_descriptor, addr, status)) < 0) {
+    cerr << "Error sending packet" << endl;
   }
-}*/
+}
+
+int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status) {
+  uint8_t message[MESSAGE_SIZE];
+  memcpy(message, &status, STATUS_SIZE);
+  return sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(addr));
+}
+
+// TODO: Add parameter to set timeout.
+uint8_t recv_packet(int socket_descriptor, sockaddr_in *from) {
+  uint8_t message[MESSAGE_SIZE];
+  socklen_t len = sizeof(from);
+  // TODO: Error check.
+  recvfrom(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) from, &len);
+  return *message;
+}

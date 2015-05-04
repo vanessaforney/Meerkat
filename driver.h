@@ -1,6 +1,8 @@
 #ifndef DRIVER_H_
 #define DRIVER_H_
 
+#include <iostream>
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -9,19 +11,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MESSAGE_SIZE 8
-#define STATUS_SIZE 8
+#define MESSAGE_SIZE 1
+#define STATUS_SIZE 1
+
+using namespace std;
 
 enum STATUS {
   LOSS, BUDDY, BUDDY_OK
 };
 
-void configure_message(uint8_t status, uint8_t *message);
+int32_t udp_configure(uint16_t port);
 
-int32_t udp_configure();
+void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t status);
 
-int32_t send_packet();
+int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status);
 
-int32_t recv_packet();
+uint8_t recv_packet(int socket_descriptor, struct sockaddr_in *addr);
 
 #endif

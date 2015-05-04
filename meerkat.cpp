@@ -15,7 +15,7 @@ void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
 }
 
 void Meerkat::configure() {
-  uint32_t socket_descriptor = udp_configure();
+  uint32_t socket_descriptor = udp_configure(this->my_port);
   this->set_socket_descriptor(socket_descriptor);
 }
 
@@ -29,7 +29,6 @@ void Meerkat::process() {
   STATE state = WAIT_ON_BUDDY;
 
   this->configure();
-  // this->send_buddy_ok();
 
   while (true) {
     switch(state) {
@@ -48,36 +47,52 @@ void Meerkat::process() {
   }
 }
 
-STATE Meerkat::wait_on_buddy() {
-  // recvfrom
-    // parse flag in packet
+void Meerkat::add_to_clan(sockaddr_in *addr) {
+  if ((this->clan).count((addr->sin_addr).s_addr) == 0) {
+    (this->clan)[(addr->sin_addr).s_addr] = *addr;
+  }
+}
 
-    // if flag == BUDDY
-        // this->send_buddy_ok();
-        // add to clan (if not in clan)
-    // else if flag == BUDDY_OK
-        // return WAIT_ON_DATA
-    // else if flag == LOSS
-        // this->assist_meerkat()
+STATE Meerkat::wait_on_buddy() {
+  sockaddr_in from;
+  uint8_t status = recv_packet(this->socket_descriptor, &from); // Pass timeout.
+
+  // if (TIMEOUT) {
+    send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY);
+  // } else {
+    if (status == BUDDY) {
+      send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
+      this->add_to_clan(&from);
+    } else if (status == BUDDY_OK) {
+      return WAIT_ON_DATA;
+    } else if (status == LOSS) {
+      if ((this->clan).count(from.sin_addr.s_addr) > 0) {
+        this->assist_meerkat();
+      } else {
+        cerr << "Received loss packet from meerkat not in clan" << endl;
+      }
+    }
+  // }
 
   return WAIT_ON_BUDDY;
 }
 
 STATE Meerkat::wait_on_data() {
-    // recvfrom
-    // parse flag in packet
+  sockaddr_in from;
+  uint8_t status = recv_packet(this->socket_descriptor, &from); // Wait on buddy request or loss (no timeout).
 
-    // if flag == BUDDY
-        // this->send_buddy_ok();
-        // add to clan (if not in clan)
-    // else if flag == LOSS
-        // this->assist_meerkat()
+  if (status == BUDDY) {
+    send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
+    this->add_to_clan(&from);
+  } else if (status == LOSS) {
+    if ((this->clan).count(from.sin_addr.s_addr) > 0) {
+      this->assist_meerkat();
+    } else {
+      cerr << "Received loss packet from meerkat not in clan" << endl;
+    }
+  }
 
   return WAIT_ON_DATA;
-}
-
-void Meerkat::send_to_buddy() {
-
 }
 
 void sigint_handler(int sig) {

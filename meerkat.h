@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <unordered_map>
 
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -14,7 +15,6 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <stdio.h>
-#include <unordered_map>
 
 #include "driver.h"
 
@@ -42,6 +42,9 @@ public:
   // the buddy meerkat.
   void process();
 
+  // Add the meerkat to the current meerkat's clan.
+  void add_to_clan(sockaddr_in *addr);
+
 private:
   // The port number of the server running the current meerket.
   uint16_t my_port;
@@ -55,11 +58,9 @@ private:
   // The name of the program to run.
   char *callback;
 
-  // The list of meerkats that will send a panic message to the current meerkat
+  // The map of meerkats that will send a panic message to the current meerkat
   // when they experience loss.
-  // TODO: decide how to store these. We do not have the meerkat here.
-  // Idea: class for IP linking to the port number? Call it Connection?
-  unordered_map<string, int> clan; // pair of IP & port number or Connection clss
+  unordered_map<uint32_t, sockaddr_in> clan;
 
   // The socket descriptor for the current meerkat.
   // TODO: decide if this is needed.
@@ -77,9 +78,6 @@ private:
 
   // The meerkat has received a BUDDY_OK and is waiting to assist other meerkats.
   STATE wait_on_data();
-
-  // Send packet to buddy.
-  void send_to_buddy();
 };
 
 #endif
