@@ -155,8 +155,6 @@ ports_set check_args(int argc, char **argv) {
     }
   }
   
-  cerr << set.my_port << " " << set.buddy_port << endl;
-  
   if (set.my_port < LOWEST_PORT || set.my_port > HIGHEST_PORT) {
     cerr << "Self port out of bounds (10k to 50k)." << endl;
     exit(-1);
