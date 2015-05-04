@@ -18,10 +18,14 @@
 
 #include "driver.h"
 
-#define NUM_ARGS 5
+#define HELP 2
+#define NO_PORTS 3
+#define ONE_PORT 5
+#define BOTH_PORTS 7
 #define ERROR -1
 #define LOWEST_PORT 10000
 #define HIGHEST_PORT 50000
+#define DEFAULT_PORT 12345
 
 using namespace std;
 
@@ -29,11 +33,20 @@ enum STATE {
   WAIT_ON_BUDDY, WAIT_ON_DATA
 };
 
+typedef struct ports_set {
+  uint16_t my_port;
+  uint16_t buddy_port;
+  ports_set(uint16_t p, uint16_t b) {
+    my_port = p;
+    buddy_port = b;
+  }
+} ports_set;
+
 class Meerkat;
 
 class Meerkat {
 public:
-  Meerkat(char *my_port, char *buddy_port, char *buddy_ip, char *callback);
+  Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback);
 
   // Set the socket descriptor of the current meerkat.
   void set_socket_descriptor(int32_t socket_descriptor);

@@ -1,4 +1,4 @@
-CPPFLAGS=-O2 -g
+CPPFLAGS=-O2 -g -std=c++11
 SRCFILES=meerkat.cpp driver.cpp
 
 all: meerkat

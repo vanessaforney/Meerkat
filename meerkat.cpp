@@ -1,13 +1,13 @@
 #include "meerkat.h"
 
-Meerkat::Meerkat(char *my_port, char *buddy_port, char *buddy_ip, char *callback) {
-  this->my_port = strtol(my_port, NULL, 10);
-  this->buddy_port = strtol(buddy_port, NULL, 10);
+Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback) {
+  this->my_port = my_port;
+  this->buddy_port = buddy_port;
   this->callback = callback;
 
   (this->buddy_ip).sin_family = AF_INET;
   (this->buddy_ip).sin_port = htons(this->buddy_port);
-  inet_pton(AF_INET, buddy_port, &((this->buddy_ip).sin_addr)); 
+  inet_pton(AF_INET, to_string(buddy_port).c_str(), &((this->buddy_ip).sin_addr));
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
@@ -115,49 +115,84 @@ void initialize_signal_handler() {
   }
 }
 
-void check_args(int argc, char **argv) {
-  // TODO: complete function. Checks args i.e. port number between 10k and 50k, callback
-  // exists, and ip is in the correct form.
+ports_set check_args(int argc, char **argv) {
+  ports_set set(DEFAULT_PORT, DEFAULT_PORT);
   struct sockaddr_in sa;
   struct stat s;
-  char help[] = "-h\n";
-  int my_port = strtol(argv[1], NULL, 10);
-  int buddy_port = strtol(argv[2], NULL, 10);
+  bool p_set = false, b_set = false;
+  char help[] = "-h";
   
-  if (strcmp(argv[1], help) == 0) {
-    cerr << "Usage: ./meerkat my_port buddy_port buddy_ipv4_address "
-            << "callback_binary_name" << endl;
-    exit(-1);
-  }
-  
-  if (argc != NUM_ARGS) {
+  if (argc != HELP && argc != NO_PORTS && argc != ONE_PORT && argc != BOTH_PORTS) {
     cerr << "Wrong number of args. Type ./meerkat -h for usage." << endl;
     exit(-1);
   }
   
-  if (my_port < LOWEST_PORT || my_port > HIGHEST_PORT) {
+  if (strcmp(argv[1], help) == 0) {
+    cerr << "Usage: ./meerkat buddy_ipv4_address callback_binary_name " 
+            "-p my_port -b buddy_port" << endl;
+    exit(-1);
+  }
+  
+  for (int i = 0; i < argc; ++i) {
+    if (argv[i][0] == '-') {
+      if (argv[i][1] == 'p') {
+        if (i+1 < argc) {
+          if (p_set) {
+            cerr << "Self port entered more than once." << endl;
+            exit(-1);
+          }
+          else {
+            set.my_port = strtol(argv[i+1], NULL, 10);
+            p_set = true;
+          }
+        }
+        else {
+          cerr << "-p and -b should go before port number." << endl;
+          exit(-1);
+        }
+      }
+      if (argv[i][1] == 'b') {
+        if (i+1 < argc) {
+          if (b_set) {
+            cerr << "Buddy port entered more than once." << endl;
+            exit(-1);
+          }
+          else {
+            set.buddy_port = strtol(argv[i+1], NULL, 10);
+            b_set = true;
+          }
+        }
+        else {
+          cerr << "-p and -b should go before port number." << endl;
+          exit(-1);
+        }
+      }
+    }
+  }
+  
+  if (set.my_port < LOWEST_PORT || set.my_port > HIGHEST_PORT) {
     cerr << "Self port out of bounds (10k to 50k)." << endl;
     exit(-1);
   }
   
-  if (buddy_port < LOWEST_PORT || buddy_port > HIGHEST_PORT) {
+  if (set.buddy_port < LOWEST_PORT || set.buddy_port > HIGHEST_PORT) {
     cerr << "Buddy port out of bounds (10k to 50k)." << endl;
     exit(-1);
   }
   
   // inet_pton returns -1 on error, 0 on invalid IP address.
-  if (inet_pton(AF_INET, argv[3], &(sa.sin_addr)) != 1) {
+  if (inet_pton(AF_INET, argv[1], &(sa.sin_addr)) != 1) {
     cerr << "Bad ipv4 address for buddy." << endl;
     exit(-1);
   }
   
-  if (stat(argv[4], &s) == 0) {
+  if (stat(argv[2], &s) == 0) {
     if (s.st_mode & S_IFDIR) {
       cerr << "Callback expected binary (given a directory)." << endl;
       exit(-1);
     }
-    else if (s.st_mode & S_IFREG) {
-      // We're good this is a file.
+    else if (s.st_mode & S_IFREG && (access(argv[2], X_OK)) == 0) {
+      // This is a file with execute permissions
     }
     else {
       // something else?
@@ -166,21 +201,24 @@ void check_args(int argc, char **argv) {
     }
   }
   else {
-    cerr << "Stat error while looking for file." << endl;
+    cerr << "Stat error while looking for callback file." << endl;
     exit(-1);
   }
+  
+  return set;
 }
 
 int main(int argc, char **argv) {
-  char *my_port, *buddy_ip, *buddy_port, *callback;
+  char *buddy_ip, *callback;
+  uint16_t my_port, buddy_port;
   
   initialize_signal_handler();
-  check_args(argc, argv);
+  ports_set set = check_args(argc, argv);
 
-  my_port = argv[1];
-  buddy_port = argv[2];
-  buddy_ip = argv[3];
-  callback = argv[4];
+  my_port = set.my_port;
+  buddy_port = set.buddy_port;
+  buddy_ip = argv[1];
+  callback = argv[2];
 
   Meerkat *meerkat = new Meerkat(my_port, buddy_port, buddy_ip, callback);
   meerkat->process();
