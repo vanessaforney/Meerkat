@@ -83,6 +83,7 @@ void Meerkat::send_to_buddy() {
 void sigint_handler(int sig) {
   if (SIGINT == sig) {
     cerr << "Meerkat program terminating." << endl;
+    exit(0);
   }
 }
 
@@ -102,8 +103,56 @@ void initialize_signal_handler() {
 void check_args(int argc, char **argv) {
   // TODO: complete function. Checks args i.e. port number between 10k and 50k, callback
   // exists, and ip is in the correct form.
+  struct sockaddr_in sa;
+  struct stat s;
+  char help[] = "-h\n";
+  int my_port = strtol(argv[1], NULL, 10);
+  int buddy_port = strtol(argv[2], NULL, 10);
+  
+  if (strcmp(argv[1], help) == 0) {
+    cerr << "Usage: ./meerkat my_port buddy_port buddy_ipv4_address "
+            << "callback_binary_name" << endl;
+    exit(-1);
+  }
+  
   if (argc != NUM_ARGS) {
-
+    cerr << "Wrong number of args. Type ./meerkat -h for usage." << endl;
+    exit(-1);
+  }
+  
+  if (my_port < LOWEST_PORT || my_port > HIGHEST_PORT) {
+    cerr << "Self port out of bounds (10k to 50k)." << endl;
+    exit(-1);
+  }
+  
+  if (buddy_port < LOWEST_PORT || buddy_port > HIGHEST_PORT) {
+    cerr << "Buddy port out of bounds (10k to 50k)." << endl;
+    exit(-1);
+  }
+  
+  // inet_pton returns -1 on error, 0 on invalid IP address.
+  if (inet_pton(AF_INET, argv[3], &(sa.sin_addr)) != 1) {
+    cerr << "Bad ipv4 address for buddy." << endl;
+    exit(-1);
+  }
+  
+  if (stat(argv[4], &s) == 0) {
+    if (s.st_mode & S_IFDIR) {
+      cerr << "Callback expected binary (given a directory)." << endl;
+      exit(-1);
+    }
+    else if (s.st_mode & S_IFREG) {
+      // We're good this is a file.
+    }
+    else {
+      // something else?
+      cerr << "Unknown error reading binary name." << endl;
+      exit(-1);
+    }
+  }
+  else {
+    cerr << "Stat error while looking for file." << endl;
+    exit(-1);
   }
 }
 
