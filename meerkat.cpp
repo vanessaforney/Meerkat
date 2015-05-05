@@ -7,7 +7,7 @@ Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *ca
 
   (this->buddy_ip).sin_family = AF_INET;
   (this->buddy_ip).sin_port = htons(this->buddy_port);
-  inet_pton(AF_INET, to_string(buddy_port).c_str(), &((this->buddy_ip).sin_addr));
+  inet_pton(AF_INET, buddy_ip, &((this->buddy_ip).sin_addr));
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
@@ -60,6 +60,7 @@ STATE Meerkat::wait_on_buddy() {
 
   if (result == NO_MESSAGES) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY);
+    return WAIT_ON_DATA; // TODO REMOVE
   } else {
     if (status == BUDDY) {
       send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);

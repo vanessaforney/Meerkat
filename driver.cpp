@@ -25,19 +25,34 @@ int32_t udp_configure(uint16_t port) {
   return socket_descriptor;
 }
 
-void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t status) {
-  if ((send_packet(socket_descriptor, addr, status)) < 0) {
+void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, STATUS status) {
+  if (send_packet(socket_descriptor, addr, status) < 0) {
     cerr << "Error sending packet" << endl;
+    cerr << strerror(errno) <<endl;
   }
 }
 
-int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status) {
-  uint8_t message[MESSAGE_SIZE];
-  memcpy(message, &status, STATUS_SIZE);
-  return sendto(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof addr);
+int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status) {
+  if (status == BUDDY) {
+    cout << "Sending buddy packet" << endl;
+  } else if (status == BUDDY_OK) {
+    cout << "Sending buddy ok packet" << endl;
+  } else {
+    cout << "Sending loss packet" << endl;
+  }
+
+  printf("Using family: %d\n", addr->sin_family);
+  cout << "Using port: ";
+  cout << ntohs(addr->sin_port) << endl;
+  char ip[INET_ADDRSTRLEN];
+  inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN);
+  printf("Using IP address: %s\n", ip);
+
+  return sendto(socket_descriptor, &status, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(sockaddr_in));
 }
 
 uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result) {
+  cout << "Receiving packet" << endl;
   uint8_t message[MESSAGE_SIZE];
   socklen_t len = sizeof from;
   *result = recvfrom(socket_descriptor, message, MESSAGE_SIZE, flags, (struct sockaddr *) from, &len);

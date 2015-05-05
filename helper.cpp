@@ -3,9 +3,11 @@
 using namespace std;
 
 int main() {
-  ofstream outfile;
+/*  ofstream outfile;
 
   outfile.open("test");
   outfile << "Testing 123..." << endl;
-  outfile.close();
+  outfile.close();*/
+
+  cout << "Testing 123..." << endl;
 }

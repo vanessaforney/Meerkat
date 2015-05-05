@@ -10,8 +10,9 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
-#define MESSAGE_SIZE 1
+#define MESSAGE_SIZE 4
 #define STATUS_SIZE 1
 #define NO_MESSAGES -1
 
@@ -23,9 +24,9 @@ enum STATUS {
 
 int32_t udp_configure(uint16_t port);
 
-void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, uint8_t status);
+void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, STATUS status);
 
-int send_packet(int socket_descriptor, struct sockaddr_in *addr, uint8_t status);
+int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status);
 
 uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result);
 
