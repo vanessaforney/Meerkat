@@ -17,7 +17,7 @@ using namespace std;
 GPIO::GPIO() {
     /* Open /dev/mem for mmap to use. */
     mmap_fd = open("/dev/mem", O_RDWR | O_SYNC);
-    CheckExpression(mmap_fd != -1, 
+    CheckExpression(mmap_fd == -1, 
         "Failed to open /dev/mem, try checking permissions.\n");
 
     mem_offset = GPIO_OFFSET;
@@ -31,7 +31,9 @@ GPIO::GPIO() {
         mmap_fd,
         mem_offset 
     );
-    CheckExpression((uintptr_t)map != -1, "Failed mmap, exiting.\n"); 
+    CheckExpression((uintptr_t)map == -1, "Failed mmap, exiting.\n"); 
+
+    mem_addr = (volatile unsigned int *)map;
 }
 
 /* Base destructor */
@@ -42,5 +44,15 @@ GPIO::~GPIO() {
 
 int main(int argc, char** argv) {
     GPIO* gpio = new GPIO();
+
+    GPIO_SET_AS_INPUT(gpio, 4);
+    GPIO_SET_AS_OUTPUT(gpio, 4);
+    while (1) {
+        GPIO_SET(gpio, 4);
+        sleep(1);
+
+        GPIO_CLR(gpio, 4);
+        sleep(1);
+    }
     return 0;
 }

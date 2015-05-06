@@ -16,24 +16,27 @@
 #define INPUT 0x0               /* State to set a pin as an input pin */
 #define OUTPUT 0x1              /* State to set a pin as an output pin */
 
-#define NUM_PERIPHERALS 10      /* Number of GPIO pins accessible in a 32 bit block */
+#define NUM_GPIOS 10            /* Number of GPIO pins accessible in a 32 bit block */
 #define GPIO_CLR_OFFSET 10      /* Offset to GPIO clear registers. */
 #define GPIO_SET_OFFSET 7       /* Offset to GPIO set registers. */
 #define CTRL_BITS 3             /* Number of control bits used to set the state of a pin */
 
 /* Sets a pin g as an input pin. */
-#define SET_AS_INPUT(g) *(mem_addr + ((g) / NUM_PERIPHERALS)) &= \
-    ~((~INPUT) << ((g) % NUM_PERIPHERALS) * CTRL_BITS)
+#define GPIO_SET_AS_INPUT(gpio, g) *(gpio->mem_addr + ((g) / NUM_GPIOS)) &= \
+    ~(7 << (((g) % NUM_GPIOS) * CTRL_BITS))
 
 /* Sets a pin g as an output pin. */
-#define SET_AS_OUTPUT(g) *(mem_addr + ((g) / NUM_PERIPHERALS)) &= \
-    ~((~OUTPUT) << ((g) % NUM_PERIPHERALS) * CTRL_BITS)
-
+#define GPIO_SET_AS_OUTPUT(gpio, g) {\
+    GPIO_SET_AS_INPUT(gpio,g);\
+    *(gpio->mem_addr + ((g)/NUM_GPIOS)) |= \
+        (1 << (((g) % NUM_GPIOS) * CTRL_BITS));\
+}
+ 
 /* Sets a pin g high. */
-#define GPIO_SET(g) *(mem_addr + GPIO_SET_OFFSET) << (g)
+#define GPIO_SET(gpio, g) *(gpio->mem_addr + GPIO_SET_OFFSET) = 1 << (g)
 
 /* Sets a pin g low. */
-#define GPIO_CLR(g) *(mem_addr + GPIO_CLR_OFFSET) << (g)
+#define GPIO_CLR(gpio, g) *(gpio->mem_addr + GPIO_CLR_OFFSET) = 1 << (g)
 
 class GPIO {
     public:
