@@ -76,7 +76,6 @@ private:
   unordered_map<uint32_t, sockaddr_in> clan;
 
   // The socket descriptor for the current meerkat.
-  // TODO: decide if this is needed.
   int32_t socket_descriptor;
 
   // Configure the meerkat and bind to its associated port number.
