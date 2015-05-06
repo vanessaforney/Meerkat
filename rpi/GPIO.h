@@ -21,15 +21,18 @@
 #define GPIO_SET_OFFSET 7       /* Offset to GPIO set registers. */
 #define CTRL_BITS 3             /* Number of control bits used to set the state of a pin */
 
+#define PIN_INPUT_MASK 7        
+#define PIN_OUTPUT_MASK 1
+
 /* Sets a pin g as an input pin. */
 #define GPIO_SET_AS_INPUT(gpio, g) *(gpio->mem_addr + ((g) / NUM_GPIOS)) &= \
-    ~(7 << (((g) % NUM_GPIOS) * CTRL_BITS))
+    ~(PIN_INPUT_MASK << (((g) % NUM_GPIOS) * CTRL_BITS))
 
 /* Sets a pin g as an output pin. */
 #define GPIO_SET_AS_OUTPUT(gpio, g) {\
     GPIO_SET_AS_INPUT(gpio,g);\
     *(gpio->mem_addr + ((g)/NUM_GPIOS)) |= \
-        (1 << (((g) % NUM_GPIOS) * CTRL_BITS));\
+        (PIN_OUTPUT_MASK << (((g) % NUM_GPIOS) * CTRL_BITS));\
 }
  
 /* Sets a pin g high. */
@@ -40,10 +43,10 @@
 
 class GPIO {
     public:
-        unsigned long mem_offset;
-        int mmap_fd;
-        void *map;
-        volatile unsigned int *mem_addr;
+        unsigned long mem_offset;           /* Offset physical memory is at. */
+        int mmap_fd;                        /* Fd for mmap to access /dev/mem. */
+        void *map;                          /* Pointer for the mmap map. */
+        volatile unsigned int *mem_addr;    /* Volatile pointer for ensured memory access to map. */
 
         /* Constructor */
         GPIO();
