@@ -48,13 +48,21 @@ int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status) 
   inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN);
   printf("Using IP address: %s\n", ip);
 
-  return sendto(socket_descriptor, &status, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(sockaddr_in));
+  return sendto(socket_descriptor, &status, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(*addr));
 }
 
-uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result) {
+uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int timeout, int *result) {
   cout << "Receiving packet" << endl;
   uint8_t message[MESSAGE_SIZE];
   socklen_t len = sizeof from;
-  *result = recvfrom(socket_descriptor, message, MESSAGE_SIZE, flags, (struct sockaddr *) from, &len);
+  struct timeval tv;
+
+  if (timeout != NO_TIMEOUT) {
+    tv.tv_sec = timeout;
+    tv.tv_usec = 0;
+    setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
+  }
+  *result = recvfrom(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) from, &len);
+
   return *message;
 }

@@ -56,7 +56,7 @@ void Meerkat::add_to_clan(sockaddr_in *addr) {
 STATE Meerkat::wait_on_buddy() {
   sockaddr_in from;
   int result;
-  uint8_t status = recv_packet(this->socket_descriptor, &from, MSG_DONTWAIT, &result);
+  uint8_t status = recv_packet(this->socket_descriptor, &from, TIMEOUT, &result);
 
   if (result == NO_MESSAGES) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY);
@@ -81,7 +81,7 @@ STATE Meerkat::wait_on_buddy() {
 STATE Meerkat::wait_on_data() {
   sockaddr_in from;
   int result;
-  uint8_t status = recv_packet(this->socket_descriptor, &from, 0, &result);
+  uint8_t status = recv_packet(this->socket_descriptor, &from, NO_TIMEOUT, &result);
 
   if (status == BUDDY) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
@@ -97,6 +97,7 @@ STATE Meerkat::wait_on_data() {
   return WAIT_ON_DATA;
 }
 
+// TODO: Move anything not related to meerkat to new file?
 void sigint_handler(int sig) {
   if (SIGINT == sig) {
     cerr << "Meerkat program terminating." << endl;

@@ -12,6 +12,8 @@
 #include <string.h>
 #include <errno.h>
 
+#define NO_TIMEOUT -1
+#define TIMEOUT 1
 #define MESSAGE_SIZE 4
 #define STATUS_SIZE 1
 #define NO_MESSAGES -1
@@ -28,6 +30,6 @@ void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, STATUS st
 
 int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status);
 
-uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int flags, int *result);
+uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int timeout, int *result);
 
 #endif
