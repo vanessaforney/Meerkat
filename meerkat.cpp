@@ -31,7 +31,7 @@ void Meerkat::process() {
   this->configure();
 
   while (true) {
-    switch(state) {
+    switch (state) {
       case WAIT_ON_BUDDY:
         state = this->wait_on_buddy();
         break;
@@ -60,7 +60,6 @@ STATE Meerkat::wait_on_buddy() {
 
   if (result == NO_MESSAGES) {
     send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY);
-    return WAIT_ON_DATA; // TODO REMOVE
   } else {
     if (status == BUDDY) {
       send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
@@ -143,13 +142,11 @@ ports_set check_args(int argc, char **argv) {
           if (p_set) {
             cerr << "Self port entered more than once." << endl;
             exit(-1);
-          }
-          else {
+          } else {
             set.my_port = strtol(argv[i+1], NULL, 10);
             p_set = true;
           }
-        }
-        else {
+        } else {
           cerr << "-p and -b should go before port number." << endl;
           exit(-1);
         }
@@ -159,13 +156,11 @@ ports_set check_args(int argc, char **argv) {
           if (b_set) {
             cerr << "Buddy port entered more than once." << endl;
             exit(-1);
-          }
-          else {
+          } else {
             set.buddy_port = strtol(argv[i+1], NULL, 10);
             b_set = true;
           }
-        }
-        else {
+        } else {
           cerr << "-p and -b should go before port number." << endl;
           exit(-1);
         }
@@ -193,17 +188,14 @@ ports_set check_args(int argc, char **argv) {
     if (s.st_mode & S_IFDIR) {
       cerr << "Callback expected binary (given a directory)." << endl;
       exit(-1);
-    }
-    else if (s.st_mode & S_IFREG && (access(argv[2], X_OK)) == 0) {
+    } else if (s.st_mode & S_IFREG && (access(argv[2], X_OK)) == 0) {
       // This is a file with execute permissions
-    }
-    else {
+    } else {
       // something else?
       cerr << "Unknown error reading binary name." << endl;
       exit(-1);
     }
-  }
-  else {
+  } else {
     cerr << "Stat error while looking for callback file." << endl;
     exit(-1);
   }
