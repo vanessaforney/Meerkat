@@ -19,6 +19,7 @@
 #define NUM_GPIOS 10            /* Number of GPIO pins accessible in a 32 bit block */
 #define GPIO_CLR_OFFSET 10      /* Offset to GPIO clear registers. */
 #define GPIO_SET_OFFSET 7       /* Offset to GPIO set registers. */
+#define GPIO_VALUE_OFFSET 13    /* Offset to GPIO value registers. */
 #define CTRL_BITS 3             /* Number of control bits used to set the state of a pin */
 
 #define PIN_INPUT_MASK 7        
@@ -36,10 +37,13 @@
 }
  
 /* Sets a pin g high. */
-#define GPIO_SET(gpio, g) *(gpio->mem_addr + GPIO_SET_OFFSET) = 1 << (g)
+#define GPIO_SET(gpio, g) *(gpio->mem_addr + GPIO_SET_OFFSET) = (1 << (g))
 
 /* Sets a pin g low. */
-#define GPIO_CLR(gpio, g) *(gpio->mem_addr + GPIO_CLR_OFFSET) = 1 << (g)
+#define GPIO_CLR(gpio, g) *(gpio->mem_addr + GPIO_CLR_OFFSET) = (1 << (g))
+
+/* Returns the value of pin g. */
+#define GPIO_READ(gpio, g)  *(gpio->mem_addr + GPIO_VALUE_OFFSET) &= (1 << (g))
 
 class GPIO {
     public:
