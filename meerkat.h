@@ -42,6 +42,10 @@ typedef struct ports_set {
   }
 } ports_set;
 
+ports_set check_args(int argc, char **argv);
+void sigint_handler(int sig);
+void initialize_signal_handler();
+
 class Meerkat;
 
 class Meerkat {
