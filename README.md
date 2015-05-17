@@ -1,4 +1,4 @@
-![alt tag](vanessaforney.github.com/meerkat/logo/meerkat.png)
+![alt tag](logo/meerkat.png)
 
 CSC 550: Grad OS
 
