@@ -52,16 +52,15 @@ int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status) 
 }
 
 uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int timeout, int *result) {
-  cout << "Receiving packet" << endl;
+  // cout << "Receiving packet" << endl;
   uint8_t message[MESSAGE_SIZE];
   socklen_t len = sizeof from;
   struct timeval tv;
 
-  if (timeout != NO_TIMEOUT) {
-    tv.tv_sec = timeout;
-    tv.tv_usec = 0;
-    setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
-  }
+  tv.tv_sec = timeout;
+  tv.tv_usec = 0;
+  setsockopt(socket_descriptor, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval));
+
   *result = recvfrom(socket_descriptor, message, MESSAGE_SIZE, 0, (struct sockaddr *) from, &len);
 
   return *message;

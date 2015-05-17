@@ -18,6 +18,7 @@
 #include <sys/time.h>
 
 #include "networks.h"
+#include "rpi/GPIO.h"
 
 #define ALIVE 0
 #define HELP 2
@@ -95,6 +96,9 @@ private:
 
   /* The type of meerkat (life or death). */
   TYPE type;
+
+  /* The GPIO pin for the meerkat to read from */
+  GPIO *gpio;
 
   /* Configure the meerkat and bind to its associated port number. */
   void configure();

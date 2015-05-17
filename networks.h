@@ -12,7 +12,7 @@
 #include <string.h>
 #include <errno.h>
 
-#define NO_TIMEOUT -1
+#define NO_TIMEOUT 0
 #define TIMEOUT 1
 #define MESSAGE_SIZE 4
 #define STATUS_SIZE 1
