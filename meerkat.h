@@ -39,10 +39,6 @@ enum TYPE {
   LIFE, DEATH
 };
 
-enum TYPE {
-  LIFE, DEATH
-};
-
 typedef struct ports_set {
   uint16_t my_port;
   uint16_t buddy_port;
@@ -95,9 +91,6 @@ private:
 
   /* The socket descriptor for the current meerkat. */
   int32_t socket_descriptor;
-  
-  // Type
-  TYPE type;
 
   /* The type of meerkat (life or death). */
   TYPE type;
