@@ -23,6 +23,7 @@
 #define NO_PORTS 3
 #define ONE_PORT 5
 #define BOTH_PORTS 7
+#define LIFE_AND_DEATH 9
 #define ERROR -1
 #define LOWEST_PORT 10000
 #define HIGHEST_PORT 50000
@@ -38,9 +39,14 @@ enum TYPE {
   LIFE, DEATH
 };
 
+enum TYPE {
+  LIFE, DEATH
+};
+
 typedef struct ports_set {
   uint16_t my_port;
   uint16_t buddy_port;
+  TYPE type;
   ports_set(uint16_t p, uint16_t b) {
     my_port = p;
     buddy_port = b;
@@ -89,6 +95,9 @@ private:
 
   /* The socket descriptor for the current meerkat. */
   int32_t socket_descriptor;
+  
+  // Type
+  TYPE type;
 
   /* The type of meerkat (life or death). */
   TYPE type;

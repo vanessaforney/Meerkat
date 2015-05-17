@@ -122,6 +122,7 @@ STATE Meerkat::check_gpio_status() {
 int main(int argc, char **argv) {
   char *buddy_ip, *callback;
   uint16_t my_port, buddy_port;
+  TYPE type;
   
   initialize_signal_handler();
   ports_set set = check_args(argc, argv);
@@ -130,8 +131,9 @@ int main(int argc, char **argv) {
   buddy_port = set.buddy_port;
   buddy_ip = argv[1];
   callback = argv[2];
+  type = set.type;
 
-  Meerkat *meerkat = new Meerkat(my_port, buddy_port, buddy_ip, callback);
+  Meerkat *meerkat = new Meerkat(my_port, buddy_port, buddy_ip, callback, type);
   meerkat->process();
 
   return 0;
