@@ -42,8 +42,11 @@ typedef struct ports_set {
   }
 } ports_set;
 
+/* Ensures command line arguments are valid.  */
 ports_set check_args(int argc, char **argv);
+/* Callback function for a registered signal. */
 void sigint_handler(int sig);
+/* Initializes callback routine for handling signals. */
 void initialize_signal_handler();
 
 class Meerkat;
