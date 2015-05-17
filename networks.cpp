@@ -1,4 +1,4 @@
-#include "driver.h"
+#include "networks.h"
 
 int32_t udp_configure(uint16_t port) {
   int socket_descriptor = 0; // Socket descriptor.
@@ -33,20 +33,20 @@ void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, STATUS st
 }
 
 int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status) {
-  if (status == BUDDY) {
-    cout << "Sending buddy packet" << endl;
-  } else if (status == BUDDY_OK) {
-    cout << "Sending buddy ok packet" << endl;
-  } else {
-    cout << "Sending loss packet" << endl;
-  }
+  // if (status == BUDDY) {
+  //   cout << "Sending buddy packet" << endl;
+  // } else if (status == BUDDY_OK) {
+  //   cout << "Sending buddy ok packet" << endl;
+  // } else {
+  //   cout << "Sending loss packet" << endl;
+  // }
 
-  printf("Using family: %d\n", addr->sin_family);
-  cout << "Using port: ";
-  cout << ntohs(addr->sin_port) << endl;
-  char ip[INET_ADDRSTRLEN];
-  inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN);
-  printf("Using IP address: %s\n", ip);
+  // printf("Using family: %d\n", addr->sin_family);
+  // cout << "Using port: ";
+  // cout << ntohs(addr->sin_port) << endl;
+  // char ip[INET_ADDRSTRLEN];
+  // inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN);
+  // printf("Using IP address: %s\n", ip);
 
   return sendto(socket_descriptor, &status, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(*addr));
 }

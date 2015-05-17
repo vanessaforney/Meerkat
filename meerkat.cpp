@@ -1,13 +1,17 @@
 #include "meerkat.h"
 
-Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback) {
+Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback, TYPE type) {
   this->my_port = my_port;
   this->buddy_port = buddy_port;
   this->callback = callback;
+  this->type = type;
 
   (this->buddy_ip).sin_family = AF_INET;
   (this->buddy_ip).sin_port = htons(this->buddy_port);
   inet_pton(AF_INET, buddy_ip, &((this->buddy_ip).sin_addr));
+
+  //GPIO *gpio = new GPIO();
+  //GPIO_SET_AS_INPUT(gpio, 21);
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
@@ -40,6 +44,10 @@ void Meerkat::process() {
         state = this->wait_on_data();
         break;
 
+      case CHECK_GPIO_STATUS:
+        state = this->check_gpio_status();
+        break;
+
       default:
         cerr << "Default case should not be reached." << endl;
         exit(-1);
@@ -65,7 +73,11 @@ STATE Meerkat::wait_on_buddy() {
       send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
       this->add_to_clan(&from);
     } else if (status == BUDDY_OK) {
-      return WAIT_ON_DATA;
+      if (this->type == LIFE) {
+        return WAIT_ON_DATA;
+      } else {
+        return CHECK_GPIO_STATUS;
+      }
     } else if (status == LOSS) {
       if ((this->clan).count(from.sin_addr.s_addr) > 0) {
         this->assist_meerkat();
@@ -95,6 +107,16 @@ STATE Meerkat::wait_on_data() {
   }
 
   return WAIT_ON_DATA;
+}
+
+STATE Meerkat::check_gpio_status() {
+  //if ((GPIO_READ(gpio, 21)) != ALIVE) {
+    int input;
+    scanf("%d", &input);
+    send_packet(this->socket_descriptor, &(this->buddy_ip), LOSS);
+  //}
+
+  return CHECK_GPIO_STATUS;
 }
 
 int main(int argc, char **argv) {

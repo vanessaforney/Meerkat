@@ -1,5 +1,5 @@
 CCFLAGS=-O2 -g
-SRCFILES=meerkat.cpp driver.cpp parsing.cpp signal_handling.cpp
+SRCFILES=meerkat.cpp networks.cpp parsing.cpp signal_handling.cpp
 
 ifeq ($(OS),Windows_NT)
 	CCFLAGS += -D WIN32
