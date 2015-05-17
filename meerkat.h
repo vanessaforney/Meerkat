@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #include "networks.h"
 
