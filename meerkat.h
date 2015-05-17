@@ -22,6 +22,7 @@
 #define NO_PORTS 3
 #define ONE_PORT 5
 #define BOTH_PORTS 7
+#define LIFE_AND_DEATH 9
 #define ERROR -1
 #define LOWEST_PORT 10000
 #define HIGHEST_PORT 50000
@@ -33,9 +34,14 @@ enum STATE {
   WAIT_ON_BUDDY, WAIT_ON_DATA
 };
 
+enum TYPE {
+  LIFE, DEATH
+};
+
 typedef struct ports_set {
   uint16_t my_port;
   uint16_t buddy_port;
+  TYPE type;
   ports_set(uint16_t p, uint16_t b) {
     my_port = p;
     buddy_port = b;
@@ -53,7 +59,7 @@ class Meerkat;
 
 class Meerkat {
 public:
-  Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback);
+  Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback, TYPE type);
 
   // Set the socket descriptor of the current meerkat.
   void set_socket_descriptor(int32_t socket_descriptor);
@@ -84,6 +90,9 @@ private:
 
   // The socket descriptor for the current meerkat.
   int32_t socket_descriptor;
+  
+  // Type
+  TYPE type;
 
   // Configure the meerkat and bind to its associated port number.
   void configure();
