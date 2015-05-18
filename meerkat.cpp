@@ -84,7 +84,7 @@ STATE Meerkat::wait_on_buddy() {
           GPIO *gpio = new GPIO();
           GPIO_SET_AS_INPUT(gpio, 17);
 
-          while ((GPIO_READ(gpio, 17)) == ALIVE) {
+          while ((GPIO_READ(gpio, 17)) != DEAD) {
           }
 
           struct timeval start;
@@ -131,7 +131,7 @@ STATE Meerkat::wait_on_data() {
 }
 
 STATE Meerkat::check_gpio_status() {
-  if ((GPIO_READ(this->gpio, 27)) != ALIVE) {
+  if ((GPIO_READ(this->gpio, 27)) == DEAD) {
     int input, i = 0;
     scanf("%d", &input);
 
