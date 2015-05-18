@@ -20,7 +20,6 @@
 #include "networks.h"
 #include "rpi/GPIO.h"
 
-#define DEAD 0
 #define HELP 2
 #define NO_PORTS 3
 #define ONE_PORT 5

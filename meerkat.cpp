@@ -5,13 +5,15 @@ Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *ca
   this->buddy_port = buddy_port;
   this->callback = callback;
   this->type = type;
+  this->gpio = new GPIO();
 
   (this->buddy_ip).sin_family = AF_INET;
   (this->buddy_ip).sin_port = htons(this->buddy_port);
   inet_pton(AF_INET, buddy_ip, &((this->buddy_ip).sin_addr));
 
-  this->gpio = new GPIO();
-  GPIO_SET_AS_INPUT(this->gpio, 27);
+  GPIO_SET_AS_OUTPUT(this->gpio, 4);
+  GPIO_CLR(this->gpio, 4);
+  GPIO_SET_AS_INPUT(this->gpio, 4);
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
@@ -81,10 +83,8 @@ STATE Meerkat::wait_on_buddy() {
         pid_t pid = fork();
 
         if (pid == 0) {
-          GPIO *gpio = new GPIO();
-          GPIO_SET_AS_INPUT(gpio, 17);
-
-          while ((GPIO_READ(gpio, 17)) != DEAD) {
+          cout << "Before GPIO read" << endl;
+          while ((GPIO_READ(this->gpio, 4)) == 0) {
           }
 
           struct timeval start;
@@ -131,10 +131,8 @@ STATE Meerkat::wait_on_data() {
 }
 
 STATE Meerkat::check_gpio_status() {
-  if ((GPIO_READ(this->gpio, 27)) == DEAD) {
-    int input, i = 0;
-    scanf("%d", &input);
-
+  if ((GPIO_READ(this->gpio, 4)) != 0) {
+    cout << "Begin to send loss packets" << endl;
     while (true) {
       send_packet(this->socket_descriptor, &(this->buddy_ip), LOSS);
     }
