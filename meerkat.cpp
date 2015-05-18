@@ -11,8 +11,6 @@ Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *ca
   (this->buddy_ip).sin_port = htons(this->buddy_port);
   inet_pton(AF_INET, buddy_ip, &((this->buddy_ip).sin_addr));
 
-  GPIO_SET_AS_OUTPUT(this->gpio, 4);
-  GPIO_CLR(this->gpio, 4);
   GPIO_SET_AS_INPUT(this->gpio, 4);
 }
 
