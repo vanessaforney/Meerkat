@@ -1,10 +1,8 @@
-![alt tag](vanessaforney.github.com/meerkat/logo/meerkat.png)
-
-CSC 550: Grad OS
-
-Meerkat
+![alt tag](logo/meerkat.png)
 
 Vanessa Forney  
 Michael Norris  
 Paul Fallon  
 Chris Hunt  
+
+CSC 550: Grad OS
