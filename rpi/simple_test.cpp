@@ -1,6 +1,10 @@
+#include <iostream>
+
 #include "GPIO.h"
 
-int main(int argc, char** argv) {
+using namespace std;
+
+int main(int argc, char **argv) {
     int current, last = -1;
     GPIO* gpio = new GPIO();
     GPIO_SET_AS_INPUT(gpio, 4);
