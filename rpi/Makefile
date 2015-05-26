@@ -2,13 +2,13 @@
 
 CC = g++
 CFLAGS = -Wall -g
-OBJS = GPIO.o
 
-all: $(OBJS)
-	$(CC) $(OBJS) -o gpio
+all: GPIO.o life.o death.o
+	$(CC) GPIO.o life.o -o life
+	$(CC) GPIO.o death.o -o death 
 
-%.c: %.h
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm *.o gpio
+	rm *.o life death
