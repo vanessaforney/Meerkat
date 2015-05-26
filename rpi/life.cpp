@@ -7,38 +7,43 @@
 #include "GPIO.h"
 
 #define MICROSEC_CONV 1000000.0
+#define START_SIG_PIN 4
+#define END_SIG_PIN   17
 
 using namespace std;
 
 int main(int argc, char** argv) {
     struct timeval start;
     struct timeval end;
+    double startTime;
+    double endTime;
 
     /* Make new GPIO object. */
     GPIO* gpio = new GPIO();
 
-    /* Sets gpio pin 4 and 17 to input. */
-    GPIO_SET_AS_INPUT(gpio, 4);
-    GPIO_SET_AS_INPUT(gpio, 17);
+    /* Sets gpio pin START_SIG_PIN and END_SIG_PIN to input. */
+    GPIO_SET_AS_INPUT(gpio, START_SIG_PIN);
+    GPIO_SET_AS_INPUT(gpio, END_SIG_PIN);
 
     /* Poll until signal comes presenting a signal that main power died. */
-    while ((GPIO_READ(gpio, 4)) == 0) {
+    while ((GPIO_READ(gpio, START_SIG_PIN)) == 0) {
     } 
 
     /* Start timer. */
     gettimeofday(&start, NULL);
 
-    printf("%d", (GPIO_READ(gpio, 17)));
-    while (GPIO_READ(gpio, 17)) {
+    /* Loop until the signal on END_SIG_PIN goes low, signifying that the pi
+     * is dead. */
+    while (GPIO_READ(gpio, END_SIG_PIN)) {
     }
 
     /* Stop timer. */
     gettimeofday(&end, NULL);
 
     /* Calculate total elapsed time. */
-    double t1 = start.tv_sec + (start.tv_usec / MICROSEC_CONV);
-    double t2 = end.tv_sec + (end.tv_usec / MICROSEC_CONV);
-    printf("Time to death: %.6lf\n", t2-t1);
+    startTime  = start.tv_sec + (start.tv_usec / MICROSEC_CONV);
+    endTime  = end.tv_sec + (end.tv_usec / MICROSEC_CONV);
+    printf("Time to death: %.6lf\n", endTime - startTime);
 
     return 0;
 }

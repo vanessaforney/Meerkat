@@ -1,7 +1,7 @@
 # Makefile for GPIO library for Raspberry Pi                                     
 
 CC = g++
-CFLAGS = -Wall -g
+CFLAGS = -ansi -Wall -g
 
 all: GPIO.o life.o death.o
 	$(CC) GPIO.o life.o -o life
