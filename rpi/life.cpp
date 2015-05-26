@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include "GPIO.h"
 
+#define MICROSEC_CONV 1000000.0
+
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -34,8 +36,8 @@ int main(int argc, char** argv) {
     gettimeofday(&end, NULL);
 
     /* Calculate total elapsed time. */
-    double t1=start.tv_sec + (start.tv_usec/1000000.0);
-    double t2=end.tv_sec + (end.tv_usec/1000000.0);
+    double t1 = start.tv_sec + (start.tv_usec / MICROSEC_CONV);
+    double t2 = end.tv_sec + (end.tv_usec / MICROSEC_CONV);
     printf("Time to death: %.6lf\n", t2-t1);
 
     return 0;
