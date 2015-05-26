@@ -26,7 +26,6 @@
 #define NO_PORTS 3
 #define ONE_PORT 5
 #define BOTH_PORTS 7
-#define LIFE_AND_DEATH 9
 #define ERROR -1
 #define LOWEST_PORT 10000
 #define HIGHEST_PORT 50000
