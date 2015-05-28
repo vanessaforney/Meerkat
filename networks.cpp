@@ -33,26 +33,10 @@ void send_packet_werr(int socket_descriptor, struct sockaddr_in *addr, STATUS st
 }
 
 int send_packet(int socket_descriptor, struct sockaddr_in *addr, STATUS status) {
-  // if (status == BUDDY) {
-  //   cout << "Sending buddy packet" << endl;
-  // } else if (status == BUDDY_OK) {
-  //   cout << "Sending buddy ok packet" << endl;
-  // } else {
-  //   cout << "Sending loss packet" << endl;
-  // }
-
-  // printf("Using family: %d\n", addr->sin_family);
-  // cout << "Using port: ";
-  // cout << ntohs(addr->sin_port) << endl;
-  // char ip[INET_ADDRSTRLEN];
-  // inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN);
-  // printf("Using IP address: %s\n", ip);
-
   return sendto(socket_descriptor, &status, MESSAGE_SIZE, 0, (struct sockaddr *) addr, sizeof(*addr));
 }
 
 uint8_t recv_packet(int socket_descriptor, sockaddr_in *from, int timeout, int *result) {
-  // cout << "Receiving packet" << endl;
   uint8_t message[MESSAGE_SIZE];
   socklen_t len = sizeof from;
   struct timeval tv;

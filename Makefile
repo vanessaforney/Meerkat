@@ -1,5 +1,6 @@
 CCFLAGS=-O2 -g
 SRCFILES=meerkat.cpp networks.cpp parsing.cpp signal_handling.cpp
+EXPERIMENTFILES=meerkat_experiment.cpp networks.cpp parsing_experiment.cpp signal_handling.cpp
 
 ifeq ($(OS),Windows_NT)
 	CCFLAGS += -D WIN32
@@ -29,10 +30,13 @@ else
 	endif
 endif
 
-all: meerkat
+all: meerkat meerkat-experiment
 
 meerkat: $(SRCFILES)
 	g++ $(CCFLAGS) -o meerkat $^
 
+meerkat-experiment: $(EXPERIMENTFILES)
+	g++ $(CCFLAGS) -o meerkat-experiment $^
+
 clean:
-	rm -rf *.o *.dSYM meerkat
+	rm -rf *.o *.dSYM meerkat meerkat-experiment

@@ -1,6 +1,6 @@
-#include "meerkat.h"
+#include "meerkat_experiment.h"
 
-Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback) {
+Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback, TYPE type) {
   this->my_port = my_port;
   this->buddy_port = buddy_port;
   this->callback = callback;
@@ -11,7 +11,7 @@ Meerkat::Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *ca
   (this->buddy_ip).sin_port = htons(this->buddy_port);
   inet_pton(AF_INET, buddy_ip, &((this->buddy_ip).sin_addr));
 
-  GPIO_SET_AS_INPUT(this->gpio, 4);
+  GPIO_SET_AS_INPUT(this->gpio, GPIO_STATUS_PIN);
 }
 
 void Meerkat::set_socket_descriptor(int32_t socket_descriptor) {
@@ -24,9 +24,10 @@ void Meerkat::configure() {
 }
 
 void Meerkat::assist_meerkat() {
-  string s(this->callback);
-  s = "./" + s;
-  execl(s.c_str(), s.c_str(), NULL);
+  struct timeval end;
+  gettimeofday(&end, NULL);
+  double timestamp = end.tv_sec + (end.tv_usec/1000000.0);
+  printf("End: %.6lf\n", timestamp);
 }
 
 void Meerkat::process() {
@@ -44,6 +45,10 @@ void Meerkat::process() {
         state = this->wait_on_data();
         break;
 
+      case CHECK_GPIO_STATUS:
+        state = this->check_gpio_status();
+        break;
+
       default:
         cerr << "Default case should not be reached." << endl;
         exit(-1);
@@ -54,15 +59,6 @@ void Meerkat::process() {
 void Meerkat::add_to_clan(sockaddr_in *addr) {
   if ((this->clan).count((addr->sin_addr).s_addr) == 0) {
     (this->clan)[(addr->sin_addr).s_addr] = *addr;
-  }
-}
-
-void Meerkat::check_gpio_status() {
-  while (true) {
-    if ((GPIO_READ(this->gpio, GPIO_STATUS_PIN)) != 0) {
-      send_packet(this->socket_descriptor, &(this->buddy_ip), LOSS);
-      exit(-1);
-    }
   }
 }
 
@@ -78,11 +74,24 @@ STATE Meerkat::wait_on_buddy() {
       send_packet_werr(this->socket_descriptor, &(this->buddy_ip), BUDDY_OK);
       this->add_to_clan(&from);
     } else if (status == BUDDY_OK) {
-      pid_t pid = fork();
-      if (pid == CHILD_PID) {
-        this->check_gpio_status();
+      if (this->type == LIFE) {
+        pid_t pid = fork();
+
+        if (pid == 0) {
+          while ((GPIO_READ(this->gpio, GPIO_STATUS_PIN)) == 0) {
+          }
+
+          struct timeval start;
+          gettimeofday(&start, NULL);
+          double t1 = start.tv_sec + (start.tv_usec/1000000.0);
+          printf("Start: %.6lf\n", t1);
+          exit(-1);
+        }
+
+        return WAIT_ON_DATA;
+      } else {
+        return CHECK_GPIO_STATUS;
       }
-      return WAIT_ON_DATA;
     } else if (status == LOSS) {
       if ((this->clan).count(from.sin_addr.s_addr) > 0) {
         this->assist_meerkat();
@@ -114,19 +123,31 @@ STATE Meerkat::wait_on_data() {
   return WAIT_ON_DATA;
 }
 
+STATE Meerkat::check_gpio_status() {
+  if ((GPIO_READ(this->gpio, GPIO_STATUS_PIN)) != 0) {
+    while (true) {
+      send_packet(this->socket_descriptor, &(this->buddy_ip), LOSS);
+    }
+  }
+
+  return CHECK_GPIO_STATUS;
+}
+
 int main(int argc, char **argv) {
   char *buddy_ip, *callback;
   uint16_t my_port, buddy_port;
+  TYPE type;
 
   initialize_signal_handler();
   ports_set set = check_args(argc, argv);
 
   my_port = set.my_port;
   buddy_port = set.buddy_port;
-  buddy_ip = argv[1];
-  callback = argv[2];
+  buddy_ip = argv[BUDDY_IP];
+  callback = argv[CALLBACK];
+  type = set.type;
 
-  Meerkat *meerkat = new Meerkat(my_port, buddy_port, buddy_ip, callback);
+  Meerkat *meerkat = new Meerkat(my_port, buddy_port, buddy_ip, callback, type);
   meerkat->process();
 
   return 0;
