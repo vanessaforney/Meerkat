@@ -18,16 +18,16 @@
 #include <sys/time.h>
 
 #include "networks.h"
-#include "rpi/GPIO.h"
+#include "../rpi/GPIO.h"
 
-#define CHILD_PID 0
+#define HELP 2
 #define BUDDY_IP 1
 #define CALLBACK 2
-#define GPIO_STATUS_PIN 4
-#define HELP 2
 #define NO_PORTS 3
+#define GPIO_STATUS_PIN 4
 #define ONE_PORT 5
 #define BOTH_PORTS 7
+#define LIFE_AND_DEATH 9
 #define ERROR -1
 #define LOWEST_PORT 10000
 #define HIGHEST_PORT 50000
@@ -36,7 +36,7 @@
 using namespace std;
 
 enum STATE {
-  WAIT_ON_BUDDY, WAIT_ON_DATA
+  WAIT_ON_BUDDY, WAIT_ON_DATA, CHECK_GPIO_STATUS
 };
 
 enum TYPE {
@@ -64,7 +64,7 @@ class Meerkat;
 
 class Meerkat {
 public:
-  Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback);
+  Meerkat(uint16_t my_port, uint16_t buddy_port, char *buddy_ip, char *callback, TYPE type);
 
   // Set the socket descriptor of the current meerkat.
   void set_socket_descriptor(int32_t socket_descriptor);
@@ -96,6 +96,9 @@ private:
   // The socket descriptor for the current meerkat.
   int32_t socket_descriptor;
 
+  // The type of meerkat (life or death).
+  TYPE type;
+
   // The GPIO pin for the meerkat to read from.
   GPIO *gpio;
 
@@ -106,14 +109,14 @@ private:
   // Calls the user defined callpack function.
   void assist_meerkat();
 
-  // Check the gpio status and sends a loss packet if power is lost.
-  void check_gpio_status();
-
   // The meerkat is waiting for a BUDDY_OK signal for the buddy meerkat.
   STATE wait_on_buddy();
 
   // The meerkat has received a BUDDY_OK and is waiting to assist other meerkats.
   STATE wait_on_data();
+
+  // Check the gpio status and sends a loss packet if power is lost.
+  STATE check_gpio_status();
 };
 
 #endif
